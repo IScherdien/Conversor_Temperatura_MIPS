@@ -1,5 +1,6 @@
 .data
-opcao: .asciiz "\nConversor de temperatura\n1- Fahrenheit para Celsius\n2- Celsius para Fahrenheit\n3- Celsius para Kelvin\n4- Kelvin para Celsius\n5- Kelvin para Fahrenheit\n6- Fahrenheit para Kelvin\n7- Histórico\n8- Sair\nInsira a escolha: "
+tamanho: .space 40
+opcao: .asciiz "\nConversor de temperatura\n1- Fahrenheit para Celsius\n2- Celsius para Fahrenheit\n3- Celsius para Kelvin\n4- Kelvin para Celsius\n5- Kelvin para Fahrenheit\n6- Fahrenheit para Kelvin\n7- Sair\nInsira a escolha: "
 inF: .asciiz "\nInsira a temperatura em Fahrenheit: "
 inC: .asciiz "\nInsira a temperatura em Celsius: "
 inK: .asciiz "\nInsira a temperatura em Kelvin: "
@@ -19,8 +20,9 @@ num9: .float 9.0
 	l.s $f2, num2
 	l.s $f3, num5
 	l.s $f4, num9
-
-
+	add $t2, $zero, $zero	
+	la $t3, tamanho
+	
 menu:
 	la $a0, opcao
 	jal imprimeString
@@ -33,7 +35,7 @@ menu:
 	beq $t1, 4, KtoC
 	beq $t1, 5, KtoF
 	beq $t1, 6, FtoK
-	beq $t1, 8, sair
+	beq $t1, 7, sair
 
 FtoC: #Fahrenheit para Celsius
 	la $a0, inF
@@ -42,19 +44,21 @@ FtoC: #Fahrenheit para Celsius
 	jal leFloat
 	mov.s $f6, $f0
 		
-	sub.s $f7, $f6, $f1 		#$f6 numero recebido
-	mul.s $f7, $f7, $f3 		#$f7 numero recebido que vai ser modificado
-	div.s $f7, $f7, $f4
+	sub.s $f6, $f6, $f1 		#$f6 numero recebido
+	mul.s $f6, $f6, $f3 		#$f7 numero recebido que vai ser modificado
+	div.s $f6, $f6, $f4
 
 	la $a0, saida
 	jal imprimeString
 		
-	mov.s $f12, $f7
+	mov.s $f12, $f6
 	jal imprimeFloat
 	
 	la $a0, C
-	jal imprimeString
-	
+	jal imprimeString	
+		
+	jal armazena
+			
 	j menu
 	
 
@@ -63,20 +67,22 @@ CtoF: #Celsius para Fahrenheit
 	jal imprimeString
 	
 	jal leFloat
-	mov.s $f8, $f0
+	mov.s $f6, $f0
 
-	mul.s $f9, $f8, $f4
-	div.s $f9, $f9, $f3
-	add.s $f9, $f9, $f1
+	mul.s $f6, $f6, $f4
+	div.s $f6, $f6, $f3
+	add.s $f6, $f6, $f1
 
 	la $a0, saida
 	jal imprimeString
 	
-	mov.s $f12, $f9
+	mov.s $f12, $f6
 	jal imprimeFloat
 	
 	la $a0, F
-	jal imprimeString
+	jal imprimeString	
+			
+	jal armazena
 	
 	j menu
 	
@@ -86,18 +92,20 @@ CtoK: #Celsius para Kelvin
 	jal imprimeString
 
 	jal leFloat
-	mov.s $f10, $f0
+	mov.s $f6, $f0
 
-	add.s $f11, $f10, $f2
+	add.s $f6, $f6, $f2
 
 	la $a0, saida
 	jal imprimeString
 		
-	mov.s $f12, $f11
+	mov.s $f12, $f6
 	jal imprimeFloat
 	
 	la $a0, K
 	jal imprimeString
+	
+	jal armazena
 	
 	j menu
 
@@ -106,18 +114,20 @@ KtoC: #Kelvin para Celsius
 	jal imprimeString
 
 	jal leFloat
-	mov.s $f12, $f0
+	mov.s $f6, $f0
 
-	sub.s $f13, $f12, $f2
+	sub.s $f6, $f6, $f2
 
 	la $a0, saida
 	jal imprimeString
 		
-	mov.s $f12, $f13
+	mov.s $f12, $f6
 	jal imprimeFloat
 	
 	la $a0, C
 	jal imprimeString
+	
+	jal armazena
 	
 	j menu
 	
@@ -126,21 +136,23 @@ KtoF: #Kelvin para Fahrenheit
 	jal imprimeString
 
 	jal leFloat
-	mov.s $f14, $f0
+	mov.s $f6, $f0
 
-	sub.s $f15, $f14, $f2
-	mul.s $f15, $f15, $f4
-	div.s $f15, $f15, $f3
-	add.s $f15, $f15, $f1
+	sub.s $f6, $f6, $f2
+	mul.s $f6, $f6, $f4
+	div.s $f6, $f6, $f3
+	add.s $f6, $f6, $f1
 
 	la $a0, saida
 	jal imprimeString
 		
-	mov.s $f12, $f15
+	mov.s $f12, $f6
 	jal imprimeFloat
 	
 	la $a0, F
 	jal imprimeString
+	
+	jal armazena
 	
 	j menu
 
@@ -149,23 +161,32 @@ FtoK: #Fahrenheit para Kelvin
 	jal imprimeString
 
 	jal leFloat
-	mov.s $f16, $f0
+	mov.s $f6, $f0
 
-	sub.s $f17, $f16, $f1
-	mul.s $f17, $f17, $f3
-	div.s $f17, $f17, $f4
-	add.s $f17, $f17, $f2
+	sub.s $f6, $f6, $f1
+	mul.s $f6, $f6, $f3
+	div.s $f6, $f6, $f4
+	add.s $f6, $f6, $f2
 
 	la $a0, saida
 	jal imprimeString
 		
-	mov.s $f12, $f17
+	mov.s $f12, $f6
 	jal imprimeFloat
 	
 	la $a0,K
 	jal imprimeString
 	
+	jal armazena
+	
 	j menu
+
+armazena:
+	s.s $f6, ($t3)
+	addi $t3, $t3, 4		
+	beq $t2, 9, sair
+	addi $t2, $t2, 1 	#contador++
+	jr $ra
 
 leFloat:
 	li $v0, 6 
@@ -188,7 +209,7 @@ imprimeFloat:
 	syscall
 	jr $ra
 	
-sair:
+sair:	
 	li $v0, 10
 	syscall
 	
