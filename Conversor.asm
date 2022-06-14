@@ -44,8 +44,8 @@ FtoC: #Fahrenheit para Celsius
 	jal leFloat
 	mov.s $f6, $f0
 		
-	sub.s $f6, $f6, $f1 		#$f6 numero recebido
-	mul.s $f6, $f6, $f3 		#$f7 numero recebido que vai ser modificado
+	sub.s $f6, $f6, $f1 		
+	mul.s $f6, $f6, $f3 		
 	div.s $f6, $f6, $f4
 
 	la $a0, saida
